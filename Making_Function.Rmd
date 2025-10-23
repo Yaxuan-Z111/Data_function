@@ -22,6 +22,13 @@ x_vec = rnorm(20, mean = 10, sd = 3.5)
 write a function to compute z scores
 ```{r}
 z_scores = function(x) {
+  if (!is.numeric(x)) {
+    stop("Argument x should be numeric")
+  }  
+  
+  if (length(x) == 1) {
+    stop("Z scores cannot be computed for length 1 vectors")
+  }
   z = (x - mean(x)) / sd(x)
   z
 }
@@ -33,5 +40,142 @@ z_scores(x = x_vec)
 
 num_vec = rnorm(123, mean = 14, sd = 0.4)
 z_scores(x = num_vec)
+```
+
+let's break our function
+```{r}
+z_scores(3)
+```
+
+# compute something
+let's compute and return the mean and sd of the numeric vector
+```{r}
+mean_and_sd = function(x){
+  if (!is.numeric(x)) {
+    stop("Argument x should be numeric")
+  }  
+  
+  if (length(x) < 5) {
+    stop("Mean and sd cannot be computed for length less that 5 numbers")
+  }
+  mean_x = mean(x, na.rm = TRUE)
+  sd_x = sd(x, na.rm = TRUE)
+
+  c(mean_x, sd_x) 
+}
+
+mean_and_sd(x_vec)
+```
+
+```{r}
+mean_and_sd = function(x){
+  if (!is.numeric(x)) {
+    stop("Argument x should be numeric")
+  }  
+  
+  if (length(x) < 5) {
+    stop("Mean and sd cannot be computed for length less that 5 numbers")
+  }
+  mean_x = mean(x, na.rm = TRUE)
+  sd_x = sd(x, na.rm = TRUE)
+
+  tibble(
+    mean = mean_x, 
+    sd = sd_x
+  )
+}
+
+mean_and_sd(x_vec)
+```
+
+to do simulation
+```{r}
+sim_df = 
+  tibble(
+    x = rnorm(30, mean = 3, sd = 2)
+  )
+
+sim_df |> 
+  summarize(
+    mu_hat = mean(x),
+    sigma_hat = sd(x)
+  )
+```
+
+write a function to do simulation
+The inputs are
+* `n_subj` is number of subjects
+* `mu` is the true mean
+```{r}
+sim_mean_sd = function(n_subj, mu = 3, sigma = 2) {
+   sim_df = tibble(
+     x = rnorm(n_subj, mean = mu, sd = sigma),
+   )
+  
+  sim_df |> 
+    summarize(
+      mu_hat = mean(x),
+      sigma_hat = sd(x)
+    )
+}
+
+sim_mean_sd(n_subj = 40)
+```
+
+```{r}
+sim_mean_sd(mu = 48, 50)
+```
+
+
+Import LoTR data
+```{r}
+fellowship_ring = 
+  read_excel("LotR_Words.xlsx", range = "B3:D6") |>
+  mutate(movie = "Fellowship of the Ring")
+
+two_towers = 
+  read_excel("LotR_Words.xlsx", range = "F3:H6") |>
+  mutate(movie = "Two Towers")
+
+return_of_the_king = 
+  read_excel("LotR_Words.xlsx", range = "J3:L6") |>
+  mutate(movie = "Return of the King")
+
+lotr_df = 
+  bind_rows(fellowship_ring, two_towers, return_of_the_king) 
+  
+lotr_df
+```
+
+make a function
+```{r}
+lotr_import = function(cell_range, movie_title) {
+  
+  df = 
+    read_excel("LotR_Words.xlsx", range = cell_range) |>
+    mutate(movie = movie_title)
+    
+  df
+  
+}
+
+fellowship = lotr_import(cell_range = "B3:D6", movie_title = "Fellowship")
+two_towers = lotr_import(cell_range = "F3:H6", movie_title = "Two Towers")
+return = lotr_import(cell_range = "J3:L6", movie_title = "Return")
+
+bind_rows(fellowship, two_towers, return)
+```
+
+
+```{r}
+lotr_df2 = 
+  bind_rows(fellowship_ring, two_towers, return_of_the_king) |>
+  janitor::clean_names() |>
+  pivot_longer(
+    female:male,
+    names_to = "sex",
+    values_to = "words") |> 
+  mutate(race = str_to_lower(race)) |> 
+  select(movie, everything()) 
 ```
 
