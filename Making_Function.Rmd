@@ -1,0 +1,37 @@
+---
+title: "Making_Fuction"
+author: "yz5248"
+date: "2025-10-23"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rvest)
+library(readxl)
+```
+
+# start small
+Z scores
+```{r}
+x_vec = rnorm(20, mean = 10, sd = 3.5)
+
+(x_vec - mean(x_vec)) / sd(x_vec)
+```
+
+write a function to compute z scores
+```{r}
+z_scores = function(x) {
+  z = (x - mean(x)) / sd(x)
+  z
+}
+```
+
+let's try out the function
+```{r}
+z_scores(x = x_vec)
+
+num_vec = rnorm(123, mean = 14, sd = 0.4)
+z_scores(x = num_vec)
+```
+
